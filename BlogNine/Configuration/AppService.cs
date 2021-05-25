@@ -1,5 +1,9 @@
-﻿using BlogNine.Data;
+﻿using BlogNine.BusinessManagers;
+using BlogNine.BusinessManagers.Interfaces;
+using BlogNine.Data;
 using BlogNine.Data.Models;
+using BlogNine.Service;
+using BlogNine.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +21,13 @@ namespace BlogNine.Configuration
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             serviceCollection.AddControllersWithViews().AddRazorRuntimeCompilation(); 
             serviceCollection.AddRazorPages();
+        }
+
+        public static void AddCustomServices(this IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddScoped<IBlogBusinessManager, BlogBusinessManager>();
+
+            serviceCollection.AddScoped<IBlogService, BlogService>();
         }
     }
 }
