@@ -1,12 +1,16 @@
-﻿using BlogNine.BusinessManagers;
+﻿using BlogNine.Authorization;
+using BlogNine.BusinessManagers;
 using BlogNine.BusinessManagers.Interfaces;
 using BlogNine.Data;
 using BlogNine.Data.Models;
 using BlogNine.Service;
 using BlogNine.Service.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace BlogNine.Configuration
 {
@@ -21,13 +25,21 @@ namespace BlogNine.Configuration
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             serviceCollection.AddControllersWithViews().AddRazorRuntimeCompilation(); 
             serviceCollection.AddRazorPages();
+
+            serviceCollection.AddSingleton<IFileProvider>(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
         }
 
         public static void AddCustomServices(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IBlogBusinessManager, BlogBusinessManager>();
+            serviceCollection.AddScoped<IAdminBusinessManager, AdminBussinesManager>();
 
             serviceCollection.AddScoped<IBlogService, BlogService>();
+        }
+
+        public static void AddCustomAuthorization(this IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddTransient<IAuthorizationHandler, BlogAuthorizationHandler>();
         }
     }
 }
