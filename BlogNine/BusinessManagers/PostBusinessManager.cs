@@ -1,7 +1,7 @@
 ﻿using BlogNine.Authorization;
 using BlogNine.BusinessManagers.Interfaces;
 using BlogNine.Data.Models;
-using BlogNine.Models.BlogViewModels;
+using BlogNine.Models.PostViewModels;
 using BlogNine.Models.HomeViewModels;
 using BlogNine.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,17 +18,17 @@ using System.Threading.Tasks;
 
 namespace BlogNine.BusinessManagers
 {
-    public class BlogBusinessManager : IBlogBusinessManager
+    public class PostBusinessManager : IPostBusinessManager
     {
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly IBlogService blogService;
+        private readonly IPostService postService;
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IAuthorizationService authorizationService;
 
-        public BlogBusinessManager(UserManager<ApplicationUser> userManager, IBlogService blogService, IWebHostEnvironment webHostEnvironment, IAuthorizationService authorizationService)
+        public PostBusinessManager(UserManager<ApplicationUser> userManager, IPostService postService, IWebHostEnvironment webHostEnvironment, IAuthorizationService authorizationService)
         {
             this.userManager = userManager;
-            this.blogService = blogService;
+            this.postService = postService;
             this.webHostEnvironment = webHostEnvironment;
             this.authorizationService = authorizationService;
         }
@@ -37,95 +37,95 @@ namespace BlogNine.BusinessManagers
         {
             int pageSize = 3;
             int pageNumber = page ?? 1;
-            var blogs = blogService.GetBlogs(searchString ?? string.Empty).Where(blogs => blogs.Published);
+            var posts = postService.GetPosts(searchString ?? string.Empty).Where(posts => posts.Published);
 
             return new IndexViewModel
             {
-                Blogs = new StaticPagedList<Blog>(blogs.Skip((pageNumber - 1) * pageSize).Take(pageSize), pageNumber, pageSize, blogs.Count()),
+                Posts = new StaticPagedList<Post>(posts.Skip((pageNumber - 1) * pageSize).Take(pageSize), pageNumber, pageSize, posts.Count()),
                 SearchString = searchString,
                 PageNumber = pageNumber
             };
         }
 
-        //CREATE NEW BLOG
-        public async Task<Blog> CreateBlog(CreateViewModel createViewModel, ClaimsPrincipal claimsPrincipal)
+        //CREATE NEW POST
+        public async Task<Post> CreatePost(CreateViewModel createViewModel, ClaimsPrincipal claimsPrincipal)
         {
-            Blog blog = createViewModel.Blog;
+            Post post = createViewModel.Post;
 
-            blog.Creator = await userManager.GetUserAsync(claimsPrincipal);
-            blog.CreatedOn = DateTime.Now;
-            blog.UpdatedOn = DateTime.Now;
+            post.Creator = await userManager.GetUserAsync(claimsPrincipal);
+            post.CreatedOn = DateTime.Now;
+            post.UpdatedOn = DateTime.Now;
 
-            blog = await blogService.Add(blog);
+            post = await postService.Add(post);
 
             string webRootPath = webHostEnvironment.WebRootPath;
-            string pathToImg = $@"{webRootPath}\UserFiles\Blogs\{blog.Id}\HeaderImage.jpg";
+            string pathToImg = $@"{webRootPath}\UserFiles\Posts\{post.Id}\HeaderImage.jpg";
 
             EnsureFolder(pathToImg);
 
             using (var fileStream = new FileStream(pathToImg, FileMode.Create))
             {
-                await createViewModel.BlogHeaderImage.CopyToAsync(fileStream);
+                await createViewModel.HeaderImage.CopyToAsync(fileStream);
             }
 
-            return blog;
+            return post;
         }
 
-        //UPDATE BLOG
-        public async Task<ActionResult<EditViewModel>> UpdateBlog(EditViewModel editViewModel, ClaimsPrincipal claimsPrincipal)
+        //UPDATE POST
+        public async Task<ActionResult<EditViewModel>> UpdatePost(EditViewModel editViewModel, ClaimsPrincipal claimsPrincipal)
         {
-            var blog = blogService.GetBlog(editViewModel.Blog.Id);
+            var post = postService.GetPost(editViewModel.Post.Id);
 
-            if (blog is null)
+            if (post is null)
                 return new NotFoundResult();
 
-            var authorizationResult = await authorizationService.AuthorizeAsync(claimsPrincipal, blog, Operations.Update);
+            var authorizationResult = await authorizationService.AuthorizeAsync(claimsPrincipal, post, Operations.Update);
 
             if (!authorizationResult.Succeeded) return DetermineActionResult(claimsPrincipal);
 
-            blog.Published = editViewModel.Blog.Published;
-            blog.Title = editViewModel.Blog.Title;
-            blog.Content = editViewModel.Blog.Content;
-            blog.UpdatedOn = DateTime.Now;
+            post.Published = editViewModel.Post.Published;
+            post.Title = editViewModel.Post.Title;
+            post.Content = editViewModel.Post.Content;
+            post.UpdatedOn = DateTime.Now;
 
-            if(editViewModel.BlogHeaderImage != null)
+            if(editViewModel.HeaderImage != null)
             {
                 string webRootPath = webHostEnvironment.WebRootPath;
-                string pathToImg = $@"{webRootPath}\UserFiles\Blogs\{blog.Id}\HeaderImage.jpg";
+                string pathToImg = $@"{webRootPath}\UserFiles\Posts\{post.Id}\HeaderImage.jpg";
 
                 EnsureFolder(pathToImg);
 
                 using (var fileStream = new FileStream(pathToImg, FileMode.Create))
                 {
-                    await editViewModel.BlogHeaderImage.CopyToAsync(fileStream);
+                    await editViewModel.HeaderImage.CopyToAsync(fileStream);
                 }
             }
 
             return new EditViewModel
             {
-                Blog = await blogService.Update(blog)
+                Post = await postService.Update(post)
             };
         }
 
-        //GET BLOG DATA TO EDIT
+        //GET POST DATA TO EDIT
         public async Task<ActionResult<EditViewModel>> GetEditViewModel(int? id, ClaimsPrincipal claimsPrincipal)
         {
             if (id is null)
                 return new BadRequestResult();
 
-            var blogId = id.Value;
-            var blog = blogService.GetBlog(blogId);
+            var postId = id.Value;
+            var post = postService.GetPost(postId);
 
-            if (blog is null)
+            if (post is null)
                 return new NotFoundResult();
 
-            var authorizationResult = await authorizationService.AuthorizeAsync(claimsPrincipal, blog, Operations.Update);
+            var authorizationResult = await authorizationService.AuthorizeAsync(claimsPrincipal, post, Operations.Update);
 
             if (!authorizationResult.Succeeded) return DetermineActionResult(claimsPrincipal);
             
             return new EditViewModel
             {
-                Blog = blog
+                Post = post
             };
 
         }

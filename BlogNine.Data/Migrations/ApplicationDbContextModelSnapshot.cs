@@ -90,7 +90,40 @@ namespace BlogNine.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("BlogNine.Data.Models.Blog", b =>
+            modelBuilder.Entity("BlogNine.Data.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AuthorId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("BlogNine.Data.Models.Post", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -126,39 +159,6 @@ namespace BlogNine.Data.Migrations
                     b.HasIndex("ApproverId");
 
                     b.HasIndex("CreatorId");
-
-                    b.ToTable("Blogs");
-                });
-
-            modelBuilder.Entity("BlogNine.Data.Models.Post", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("BlogId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PoserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlogId");
-
-                    b.HasIndex("ParentId");
-
-                    b.HasIndex("PoserId");
 
                     b.ToTable("Posts");
                 });
@@ -298,7 +298,22 @@ namespace BlogNine.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("BlogNine.Data.Models.Blog", b =>
+            modelBuilder.Entity("BlogNine.Data.Models.Comment", b =>
+                {
+                    b.HasOne("BlogNine.Data.Models.ApplicationUser", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId");
+
+                    b.HasOne("BlogNine.Data.Models.Comment", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
+
+                    b.HasOne("BlogNine.Data.Models.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId");
+                });
+
+            modelBuilder.Entity("BlogNine.Data.Models.Post", b =>
                 {
                     b.HasOne("BlogNine.Data.Models.ApplicationUser", "Approver")
                         .WithMany()
@@ -307,21 +322,6 @@ namespace BlogNine.Data.Migrations
                     b.HasOne("BlogNine.Data.Models.ApplicationUser", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId");
-                });
-
-            modelBuilder.Entity("BlogNine.Data.Models.Post", b =>
-                {
-                    b.HasOne("BlogNine.Data.Models.Blog", "Blog")
-                        .WithMany("Posts")
-                        .HasForeignKey("BlogId");
-
-                    b.HasOne("BlogNine.Data.Models.Post", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId");
-
-                    b.HasOne("BlogNine.Data.Models.ApplicationUser", "Poser")
-                        .WithMany()
-                        .HasForeignKey("PoserId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

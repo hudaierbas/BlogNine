@@ -12,15 +12,15 @@ namespace BlogNine.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IBlogBusinessManager blogBusinessManager;
-        public HomeController(IBlogBusinessManager blogBusinessManager)
+        private readonly IPostBusinessManager postBusinessManager;
+        public HomeController(IPostBusinessManager postBusinessManager)
         {
-            this.blogBusinessManager = blogBusinessManager;
+            this.postBusinessManager = postBusinessManager;
         }
 
         public IActionResult Index(string searchString, int? page)
         {
-            return View(blogBusinessManager.GetIndexViewModel(searchString, page));
+            return View(postBusinessManager.GetIndexViewModel(searchString, page));
         }
 
 

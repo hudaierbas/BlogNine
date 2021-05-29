@@ -14,17 +14,17 @@ namespace BlogNine.BusinessManagers
     public class AdminBussinesManager : IAdminBusinessManager
     {
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly IBlogService blogService;
-        public AdminBussinesManager(UserManager<ApplicationUser> userManager, IBlogService blogService)
+        private readonly IPostService postService;
+        public AdminBussinesManager(UserManager<ApplicationUser> userManager, IPostService postService)
         {
             this.userManager = userManager;
-            this.blogService = blogService;
+            this.postService = postService;
         }
         public async Task<IndexViewModel> GetAdminDashboard(ClaimsPrincipal claimsPrincipal)
         {
             var applicationUser = await userManager.GetUserAsync(claimsPrincipal);
             return new IndexViewModel {
-                Blogs = blogService.GetBlogs(applicationUser)
+                Posts = postService.GetPosts(applicationUser)
             };
 
         }
