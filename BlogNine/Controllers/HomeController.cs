@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using BlogNine.Models;
+using BlogNine.BusinessManagers.Interfaces;
 
 namespace BlogNine.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IBlogBusinessManager blogBusinessManager;
+        public HomeController(IBlogBusinessManager blogBusinessManager)
         {
-            _logger = logger;
+            this.blogBusinessManager = blogBusinessManager;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string searchString, int? page)
         {
-            return View();
+            return View(blogBusinessManager.GetIndexViewModel(searchString, page));
         }
 
 

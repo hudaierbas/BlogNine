@@ -5,14 +5,16 @@ using System.Threading.Tasks;
 using BlogNine.BusinessManagers;
 using BlogNine.BusinessManagers.Interfaces;
 using BlogNine.Models.BlogViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogNine.Controllers
 {
+    [Authorize]
     public class BlogController : Controller
     {
         private readonly IBlogBusinessManager blogBusinessManager;
-
+        
         public BlogController(IBlogBusinessManager blogBusinessManager)
         {
             this.blogBusinessManager = blogBusinessManager;
@@ -30,7 +32,7 @@ namespace BlogNine.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             var actionResult = await blogBusinessManager.GetEditViewModel(id, User);
-
+            
             if (actionResult.Result is null)
                 return View(actionResult.Value);
 

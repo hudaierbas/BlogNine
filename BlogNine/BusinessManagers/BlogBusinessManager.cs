@@ -2,11 +2,13 @@
 using BlogNine.BusinessManagers.Interfaces;
 using BlogNine.Data.Models;
 using BlogNine.Models.BlogViewModels;
+using BlogNine.Models.HomeViewModels;
 using BlogNine.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PagedList.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,6 +32,22 @@ namespace BlogNine.BusinessManagers
             this.webHostEnvironment = webHostEnvironment;
             this.authorizationService = authorizationService;
         }
+
+        public IndexViewModel GetIndexViewModel(string searchString, int? page)
+        {
+            int pageSize = 3;
+            int pageNumber = page ?? 1;
+            var blogs = blogService.GetBlogs(searchString ?? string.Empty).Where(blogs => blogs.Published);
+
+            return new IndexViewModel
+            {
+                Blogs = new StaticPagedList<Blog>(blogs.Skip((pageNumber - 1) * pageSize).Take(pageSize), pageNumber, pageSize, blogs.Count()),
+                SearchString = searchString,
+                PageNumber = pageNumber
+            };
+        }
+
+        //CREATE NEW BLOG
         public async Task<Blog> CreateBlog(CreateViewModel createViewModel, ClaimsPrincipal claimsPrincipal)
         {
             Blog blog = createViewModel.Blog;
@@ -53,6 +71,7 @@ namespace BlogNine.BusinessManagers
             return blog;
         }
 
+        //UPDATE BLOG
         public async Task<ActionResult<EditViewModel>> UpdateBlog(EditViewModel editViewModel, ClaimsPrincipal claimsPrincipal)
         {
             var blog = blogService.GetBlog(editViewModel.Blog.Id);
@@ -88,6 +107,7 @@ namespace BlogNine.BusinessManagers
             };
         }
 
+        //GET BLOG DATA TO EDIT
         public async Task<ActionResult<EditViewModel>> GetEditViewModel(int? id, ClaimsPrincipal claimsPrincipal)
         {
             if (id is null)

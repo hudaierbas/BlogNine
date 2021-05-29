@@ -10,6 +10,7 @@ namespace BlogNine.Service.Interfaces
     {
         Blog GetBlog(int blogId);
         IEnumerable<Blog> GetBlogs(ApplicationUser applicationUser);
+        IEnumerable<Blog> GetBlogs(string searchString);
         Task<Blog> Add(Blog blog);
 
         Task<Blog> Update(Blog blog);
