@@ -35,6 +35,7 @@ namespace BlogNine.Configuration
             serviceCollection.AddScoped<IAdminBusinessManager, AdminBussinesManager>();
 
             serviceCollection.AddScoped<IPostService, PostService>();
+            serviceCollection.AddScoped<IUserService, UserService>();
         }
 
         public static void AddCustomAuthorization(this IServiceCollection serviceCollection)
