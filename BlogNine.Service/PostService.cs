@@ -19,7 +19,13 @@ namespace BlogNine.Service
        
         public Post GetPost(int postId)
         {
-            return applicationDbContext.Posts.FirstOrDefault(post => post.Id == postId);
+            return applicationDbContext.Posts
+                .Include(post => post.Creator)
+                .Include(post => post.Comments)
+                    .ThenInclude(post => post.Comments)
+                .Include(post => post.Comments)
+                    .ThenInclude(comment => comment.Comments)
+                .FirstOrDefault(post => post.Id == postId);
         }
 
         public IEnumerable<Post> GetPosts(string searchString)

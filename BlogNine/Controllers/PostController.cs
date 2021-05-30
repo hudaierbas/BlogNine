@@ -19,9 +19,16 @@ namespace BlogNine.Controllers
         {
             this.postBusinessManager = postBusinessManager;
         }
-        public IActionResult Index()
+
+        [Route("Post/{id}"),AllowAnonymous]
+        public async Task<IActionResult> Index(int? id)
         {
-            return View();
+            var actionResult = await postBusinessManager.GetPostViewModel(id, User);
+
+            if (actionResult.Result is null)
+                return View(actionResult.Value);
+
+            return actionResult.Result;
         }
 
         public IActionResult Create()

@@ -35,7 +35,7 @@ namespace BlogNine.BusinessManagers
 
         public IndexViewModel GetIndexViewModel(string searchString, int? page)
         {
-            int pageSize = 3;
+            int pageSize = 6;
             int pageNumber = page ?? 1;
             var posts = postService.GetPosts(searchString ?? string.Empty).Where(posts => posts.Published);
 
@@ -44,6 +44,30 @@ namespace BlogNine.BusinessManagers
                 Posts = new StaticPagedList<Post>(posts.Skip((pageNumber - 1) * pageSize).Take(pageSize), pageNumber, pageSize, posts.Count()),
                 SearchString = searchString,
                 PageNumber = pageNumber
+            };
+        }
+
+        public async Task<ActionResult<PostViewModel>> GetPostViewModel(int? id, ClaimsPrincipal claimsPrincipal)
+        {
+            if (id is null)
+                return new BadRequestResult();
+
+            var postId = id.Value;
+            var post = postService.GetPost(postId);
+
+            if (post is null)
+                return new NotFoundResult();
+
+            if (!post.Published)
+            {
+                var authorizationResult = await authorizationService.AuthorizeAsync(claimsPrincipal, post, Operations.Read);
+
+                if (!authorizationResult.Succeeded) return DetermineActionResult(claimsPrincipal);
+            }
+
+            return new PostViewModel
+            {
+                Post = post
             };
         }
 
