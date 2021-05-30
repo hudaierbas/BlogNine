@@ -13,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace BlogNine.BusinessManagers
 {
-    public class AdminBussinesManager : IAdminBusinessManager
+    public class AdminBusinessManager : IAdminBusinessManager
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IPostService postService;
         private readonly IUserService userService;
         private readonly IWebHostEnvironment webHostEnvironment;
-        public AdminBussinesManager(UserManager<ApplicationUser> userManager, IPostService postService, IUserService userService, IWebHostEnvironment webHostEnvironment)
+        public AdminBusinessManager(UserManager<ApplicationUser> userManager, IPostService postService, IUserService userService, IWebHostEnvironment webHostEnvironment)
         {
             this.userManager = userManager;
             this.postService = postService;
@@ -42,6 +42,7 @@ namespace BlogNine.BusinessManagers
 
             return new AboutViewModel
             {
+                ApplicationUser = applicationUser,
                 SubHeader = applicationUser.SubHeader,
                 Content = applicationUser.AboutContent
             };
