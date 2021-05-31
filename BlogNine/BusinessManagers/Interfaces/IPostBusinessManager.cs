@@ -17,5 +17,6 @@ namespace BlogNine.BusinessManagers.Interfaces
         Task<ActionResult<EditViewModel>> UpdatePost(EditViewModel editViewModel, ClaimsPrincipal claimsPrincipal);
         IndexViewModel GetIndexViewModel(string searchString, int? page);
         Task<ActionResult<PostViewModel>> GetPostViewModel(int? id, ClaimsPrincipal claimsPrincipal);
+        Task<ActionResult<Comment>> CreateComment(PostViewModel postViewModel, ClaimsPrincipal claimsPrincipal);
     }
 }

@@ -63,8 +63,19 @@ namespace BlogNine.Controllers
             //return RedirectToAction("Edit", new { editViewModel.Blog.Id });
 
             return actionResult.Result;
-
         }
-            
+
+        [HttpPost]
+        public async Task<IActionResult> Comment(PostViewModel postViewModel)
+        {
+            var actionResult = await postBusinessManager.CreateComment(postViewModel, User);
+
+            if (actionResult.Result is null)
+                return RedirectToAction("Index", new { postViewModel.Post.Id });
+            //return RedirectToAction("Edit", new { editViewModel.Blog.Id });
+
+            return actionResult.Result;
+        }
+
     }
 }
