@@ -1,2 +1,2 @@
 # BlogNine  
-ASP.NET CORE BLOG
+.NET CORE BLOG
